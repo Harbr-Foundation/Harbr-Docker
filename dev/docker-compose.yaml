@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       context: ../../Harbr-UI/
-      dockerfile: ../../Harbr-UI/Dockerfile
+      dockerfile: ../Harbr-UI/Dockerfile
     environment:
       NODE_ENV: production
       VITE_API_URL: http://api:3030
@@ -14,7 +14,7 @@ services:
   api:
     build:
       context: ../../Harbr/
-      dockerfile: ../../Harbr/Dockerfile
+      dockerfile: ../Harbr/Dockerfile
     environment:
       RUST_LOG: info
       DATABASE_URL: postgres://postgres:${DB_PASSWORD}@db:5432/harbr
