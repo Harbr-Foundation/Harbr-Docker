@@ -1,0 +1,50 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: ../Harbr-UI/Dockerfile
+    environment:
+      NODE_ENV: production
+      VITE_API_URL: http://api:3030
+    ports:
+      - "4173:4173"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: ../Harbr/Dockerfile
+    environment:
+      RUST_LOG: info
+      DATABASE_URL: postgres://postgres:${DB_PASSWORD}@db:5432/harbr
+      CORS_ORIGIN: http://localhost:3030
+    ports:
+      - "3030:3030"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.2
+    restart: always
+    environment:
+      - MYSQL_DATABASE=harbr
+      - MYSQL_ROOT_PASSWORD=harbr
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=harbr"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: db/password.txt
