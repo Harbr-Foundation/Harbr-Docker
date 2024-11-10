@@ -1,3 +1,7 @@
+networks:
+  harbr:
+    driver: bridge
+
 services:
   frontend:
     build:
@@ -11,10 +15,12 @@ services:
       - DATABASE_URL=./harbr.db
       - JWT_SECRET=${JWT_SECRET:-default_secret_for_development}
       - HOST=0.0.0.0
-    ports:
-      - "4173:4173"
+    expose:
+      - "4173"
     depends_on:
       - api
+    networks:
+      - harbr
 
   router:
     image: ghcr.io/harbr-foundation/harbr-router:main
@@ -23,6 +29,8 @@ services:
     volumes:
       - ./proxy-config.yml:/etc/harbr-router/config.yml
     restart: unless-stopped
+    networks:
+      - harbr
 
   api:
     build:
@@ -32,11 +40,13 @@ services:
       RUST_LOG: info
       DATABASE_URL: postgres://postgres:${DB_PASSWORD}@db:5432/harbr
       CORS_ORIGIN: http://localhost:3030
-    ports:
-      - "3030:3030"
+    expose:
+      - "3030"
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - harbr
 
   db:
     image: mysql:8.2
@@ -44,8 +54,8 @@ services:
     environment:
       - MYSQL_DATABASE=harbr
       - MYSQL_ROOT_PASSWORD=harbr
-    ports:
-      - "3306:3306"
+    expose:
+      - "3306"
     volumes:
       - db-data:/var/lib/mysql
       - ./db/init:/docker-entrypoint-initdb.d
@@ -54,6 +64,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - harbr
 
 volumes:
   db-data:
