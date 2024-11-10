@@ -8,6 +8,7 @@ routes:
     timeout_ms: 1000
     retry_count: 1
     preserve_host_header: true  # For SvelteKit routing
+    priority: 0
 
   "/api":
     upstream: "http://api:3030"
@@ -15,3 +16,4 @@ routes:
     timeout_ms: 3000
     retry_count: 2
     preserve_host_header: true  # For SvelteKit routing
+    priority: 50
