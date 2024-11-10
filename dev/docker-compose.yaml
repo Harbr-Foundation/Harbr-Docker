@@ -3,13 +3,26 @@ services:
     build:
       context: ../../Harbr-UI/
       dockerfile: ../Harbr-UI/Dockerfile
+      args:
+        JWT_SECRET: ${JWT_SECRET:-default_secret_for_development}
     environment:
-      NODE_ENV: production
-      VITE_API_URL: http://api:3030
+      - NODE_ENV=production
+      - VITE_API_URL=http://api:3030
+      - DATABASE_URL=./harbr.db
+      - JWT_SECRET=${JWT_SECRET:-default_secret_for_development}
+      - HOST=0.0.0.0
     ports:
       - "4173:4173"
     depends_on:
       - api
+
+  router:
+    image: ghcr.io/harbr-foundation/harbr-router:main
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./proxy-config.yml:/etc/harbr-router/config.yml
+    restart: unless-stopped
 
   api:
     build:
