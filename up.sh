@@ -6,6 +6,13 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+# Detect if running in WSL
+if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
+    echo "It looks like you are running this script in WSL."
+    echo "Please run the up.bat script in Windows with the same arguments to avoid permission issues."
+    exit 1
+fi
+
 # Set the directory based on the argument
 if [ "$1" == "release" ]; then
     cd ./release
